@@ -1,3 +1,8 @@
+##-------------------------------------------------------------------------------------
+##  12/8/18 - update print() statements to use str.format() for better formatting
+##-------------------------------------------------------------------------------------
+
+
 try:
     import numpy as np
     import random
@@ -81,6 +86,7 @@ class GameArray:
     # Method
     def print(self, label='', indent=0):
         size = len(self.arr[0])
+        template = '{0:>' + str(size) + '}'
         margin = ' ' * indent
         fmt_rows = []
 
@@ -88,7 +94,7 @@ class GameArray:
         sborder = margin + ':-' + '-:-'.join(['-'*size for col in range(size)]) + '-:'
         fmt_rows.append(sborder)
         for row in self.arr:
-            srow = margin + ': ' + ' : '.join([self.padLeft(col,size) for col in row]) + ' :'
+            srow = margin + ': ' + ' : '.join([template.format(col) for col in row]) + ' :'
             fmt_rows.append(srow)
             fmt_rows.append(sborder)
 
@@ -125,7 +131,7 @@ class GameArray:
             
             
 
-def main():
+def main_gui():
     def set_colors():
         colors = {}
         colors[0] = (255, 255, 255)
@@ -243,48 +249,48 @@ def main():
 
 
 
-##def main():
-##    LOOP_SIZE = 3000
-##
-##    ga = GameArray(8)
-##
-##    auto_choices = 0
-##    i = 0
-##    running = True
-##    while running:
-##        if ga.full():
-##            running = False
-##
-##        if i == LOOP_SIZE:
-##            running = False
-##
-##        if running and auto_choices == 0:            
-##            ga.print('Seed ' + str(i+1) + ' ' *5, 5)
-##            direction = input('Pack direction? (u, d, l, r -- q to quit):  ')
-##            print('\n' * 2)
-##            if direction == 'q':
-##                running = False
-##            elif direction.isdigit():
-##                auto_choices = int(direction)
-##            elif direction not in ['l','r','u','d']:
-##                auto_choices = 1
-##                
-##        if running and auto_choices > 0:
-##            direction = random.choice(['l','r','u','d'])
-##            auto_choices -= 1
-##                    
-##        if running:
-##            ga.pack(direction)
-##            ga.seed()
-##            i += 1
-##        
-##    ga.print('Final in round ' + str(i+1) + ': ', 5)
-##    print(' '* 2 + '-' * 5, 'Score', ga.score(), '-' * 5)
-##    print(' '* 2 + '-' * 5, '  Max', ga.max(), '-' * 5)
-##    print()    
+def main_txt():
+    LOOP_SIZE = 3000
+
+    ga = GameArray(3)
+
+    auto_choices = 0
+    i = 0
+    running = True
+    while running:
+        if ga.full():
+            running = False
+
+        if i == LOOP_SIZE:
+            running = False
+
+        if running and auto_choices == 0:            
+            ga.print('Seed ' + str(i+1) + ' ' *5, 5)
+            direction = input('Pack direction? (u, d, l, r -- q to quit):  ')
+            print('\n' * 2)
+            if direction == 'q':
+                running = False
+            elif direction.isdigit():
+                auto_choices = int(direction)
+            elif direction not in ['l','r','u','d']:
+                auto_choices = 1
+                
+        if running and auto_choices > 0:
+            direction = random.choice(['l','r','u','d'])
+            auto_choices -= 1
+                    
+        if running:
+            ga.pack(direction)
+            ga.seed()
+            i += 1
+        
+    ga.print('Final in round {0:,}:'.format(i+1))
+    print(' '* 2 + '-' * 5, '{0} {1:>8,}'.format('Score', ga.score()), '-' * 5)
+    print(' '* 2 + '-' * 5, '{0} {1:>8,}'.format('  Max', ga.max()), '-' * 5)
+    print()    
     
 
 
 if __name__ =='__main__':
-    main()  
+    main_txt()  
     

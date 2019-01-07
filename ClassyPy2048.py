@@ -30,7 +30,7 @@ class GameArray:
         if dir=='r' or dir=='d':
             view = np.fliplr(view)
         for row in view:
-            self.__packRow(row)               
+            self.__packRow(row)
 
     # Method (private)
     def __packRow(self, row):
@@ -59,20 +59,12 @@ class GameArray:
 
     # Method
     def auto(self, strategy='l-r', plays=10):
-        dir = []
-        if strategy == 'l-r':
-            dir = ['l', 'r']
-        elif strategy == 'u-d':
-            dir = ['u', 'd']
-        elif strategy == 'l-u-r-d':
-            dir = ['l', 'u', 'r', 'd']
-        else:
-            dir = ['r', 'd']
+        dir = strategy.split('-')
 
         k = len(dir)
         for i in range(plays):
             self.pack(dir[i%k])
-        
+
     # Property
     def full(self):
         #check for any zeros in array
@@ -106,12 +98,12 @@ class GameArray:
         sborder = margin + ':-' + '-:-'.join(['-'*size for col in range(size)]) + '-:'
         fmt_rows.append(sborder)
         for row in self.arr:
-            srow = margin + ': ' + ' : '.join([template.format(col) for col in row]) + ' :'
+            srow = (margin + ': ' + ' : '.join([template.format(col) for col in row]) + ' :').replace(' 0 ', '   ')
             fmt_rows.append(srow)
             fmt_rows.append(sborder)
 
         print(*fmt_rows, sep='\n')
-        print()        
+        print()
 
     # Property
     def rounds(self):
@@ -140,8 +132,7 @@ class GameArray:
     # Property
     def values(self):
         return [self.arr[i][j] for i in range(self.arr.shape[0]) for j in range(self.arr.shape[0])]
-            
-            
+
 
 def main_gui():
     def set_colors():
@@ -163,8 +154,8 @@ def main_gui():
             x *= 2
             c_val -= 20
             colors[x] = (c_val-10, c_val+10, c_val)
-        return colors   
-        
+        return colors
+
     def update_buttons():
         i = 0
         for val in ga.values():
@@ -180,7 +171,7 @@ def main_gui():
         if ga.full():
             spacer.value = 'No moves possible - GAME OVER!'
             spacer.text_color = 'red'
-            spacer.bg = 'yellow'        
+            spacer.bg = 'yellow'
 
     def auto_play(strategy):
         if key_in.value.isnumeric():
@@ -195,10 +186,10 @@ def main_gui():
         ga.pack(dir)
         update_buttons()
 
-        
+
     def on_keyrelease(event_data):
         arrowkeys = {111: 'u', 116: 'd', 113: 'l', 114: 'r'}
-        
+
         if event_data.key == 'q':
             app.destroy()
         else:
@@ -207,7 +198,7 @@ def main_gui():
                 dir = arrowkeys[key]
                 make_play(dir)
                 key_in.clear()
-            
+
     N=8
 
     colors = set_colors()
@@ -219,7 +210,7 @@ def main_gui():
     wspace1 = Text(app, width=30, height=2)
     box1 = Box(app, layout='grid')
     grid_btns = [PushButton(box1, text=str(i), grid=[i%N, int(i/N)], width=6, height=3) for i in range(N*N)]
-    
+
     wspace2 = Text(app, width=30, height=2)
     box2 = Box(app, layout='grid')
 
@@ -232,22 +223,22 @@ def main_gui():
     key_in = TextBox(box3, text='', grid=[0, 0], align = 'left', width=3)
     key_in.when_key_released = on_keyrelease
     key_in.focus()
-   
+
     auto_b1 = PushButton(box3, text = 'L-R', command=auto_play, args=['l-r'], grid=[1, 0], width=5)
     auto_b1.bg = 'white'
     auto_b1.text_color = 'red'
 
     auto_b2 = PushButton(box3, text = 'U-D', command=auto_play, args=['u-d'], grid=[2, 0], width=5)
     auto_b2.bg = 'white'
-    auto_b2.text_color = 'red'    
+    auto_b2.text_color = 'red'
 
     auto_b3 = PushButton(box3, text = 'CRNRS', command=auto_play, args=['l-u-r-d'], grid=[3, 0], width=5)
     auto_b3.bg = 'white'
     auto_b3.text_color = 'red'
 
-    
+
     update_buttons()
-    
+
     app.display
 
 
@@ -259,15 +250,26 @@ def main_txt():
 
     plays = 1
     i = 0
+    buffer = ''
     running = True
     while running:
         if ga.full():
             running = False
 
-        if running:            
+        if running:
             ga.print('Round {0:,}:'.format(ga.rounds()+1))
-            raw_input = input('Pack direction? (u, d, l, r -- q to quit):  ').split()
+            if buffer:
+                prompt = '<enter> to repeat last command (' + buffer + ')'
+            else:
+                prompt = 'Pack direction? (u, d, l, r)'
+            prompt = prompt + ' -- q to quit: '
+            raw_input = input(prompt)
             print('\n' * 2)
+            if not raw_input:
+                raw_input = buffer
+            else:
+                buffer = raw_input
+            raw_input = buffer.split()
             direction = raw_input[0]
             if direction == 'q':
                 running = False
@@ -279,14 +281,14 @@ def main_txt():
                     ga.pack(direction)
                 else:
                     ga.auto(direction, plays)
-        
+
     ga.print('Final in round {0:,}:'.format(ga.rounds() + 1))
     print(' '* 2 + '-' * 5, '{0} {1:>8,}'.format('Score', ga.score()), '-' * 5)
     print(' '* 2 + '-' * 5, '{0} {1:>8,}'.format('  Max', ga.max()), '-' * 5)
-    print()    
-    
+    print()
+
 
 
 if __name__ =='__main__':
-    main_txt()  
-    
+    main_txt()
+
